@@ -1,5 +1,5 @@
 # e-commerce app
-A Rest-APIs that simulates an e-commerce processes
+Rest-APIs that simulates an e-commerce processes
 
 ## Tests
 
