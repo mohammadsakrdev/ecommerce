@@ -1,12 +1,10 @@
 package shop.modules
 
 import scala.concurrent.duration._
-
 import shop.http.auth.users._
 import shop.http.routes._
 import shop.http.routes.admin._
 import shop.http.routes.secured._
-
 import cats.effect.Async
 import cats.syntax.all._
 import dev.profunktor.auth.JwtAuthMiddleware
@@ -14,6 +12,7 @@ import org.http4s._
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.middleware._
+import shop.http.routes.auth.{LoginRoutes, LogoutRoutes, UserRoutes}
 
 object HttpApi {
   def make[F[_]: Async](
@@ -41,8 +40,6 @@ sealed abstract class HttpApi[F[_]: Async] private (
 
   // Open routes
   private val healthRoutes   = HealthRoutes[F](services.healthCheck).routes
-  private val brandRoutes    = BrandRoutes[F](services.brands).routes
-  private val categoryRoutes = CategoryRoutes[F](services.categories).routes
   private val itemRoutes     = ItemRoutes[F](services.items).routes
 
   // Secured routes
@@ -51,19 +48,16 @@ sealed abstract class HttpApi[F[_]: Async] private (
   private val orderRoutes    = OrderRoutes[F](services.orders).routes(usersMiddleware)
 
   // Admin routes
-  private val adminBrandRoutes    = AdminBrandRoutes[F](services.brands).routes(adminMiddleware)
-  private val adminCategoryRoutes = AdminCategoryRoutes[F](services.categories).routes(adminMiddleware)
   private val adminItemRoutes     = AdminItemRoutes[F](services.items).routes(adminMiddleware)
 
   // Combining all the http routes
   private val openRoutes: HttpRoutes[F] =
-    healthRoutes <+> itemRoutes <+> brandRoutes <+>
-      categoryRoutes <+> loginRoutes <+> userRoutes <+>
+    healthRoutes <+> itemRoutes  <+> loginRoutes <+> userRoutes <+>
       logoutRoutes <+> cartRoutes <+> orderRoutes <+>
       checkoutRoutes
 
   private val adminRoutes: HttpRoutes[F] =
-    adminItemRoutes <+> adminBrandRoutes <+> adminCategoryRoutes
+    adminItemRoutes
 
   private val routes: HttpRoutes[F] = Router(
     version.v1            -> openRoutes,

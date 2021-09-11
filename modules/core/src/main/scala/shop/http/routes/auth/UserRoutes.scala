@@ -1,4 +1,4 @@
-package shop.http.routes
+package shop.http.routes.auth
 
 import shop.domain._
 import shop.domain.auth._

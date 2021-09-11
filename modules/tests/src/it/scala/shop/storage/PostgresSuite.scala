@@ -1,8 +1,6 @@
 package shop.storage
 
 import shop.domain._
-import shop.domain.brand._
-import shop.domain.category._
 import shop.domain.item._
 import shop.generators._
 import shop.services._
@@ -10,8 +8,6 @@ import shop.services._
 import cats.data.NonEmptyList
 import cats.effect._
 import cats.implicits._
-import eu.timepit.refined.auto._
-import eu.timepit.refined.cats._
 import natchez.Trace.Implicits.noop
 import org.scalacheck.Gen
 import skunk._
@@ -21,7 +17,7 @@ import suite.ResourceSuite
 object PostgresSuite extends ResourceSuite {
 
   val flushTables: List[Command[Void]] =
-    List("items", "brands", "categories", "orders", "users").map { table =>
+    List("items", "orders", "users").map { table =>
       sql"DELETE FROM #$table".command
     }
 
@@ -43,54 +39,21 @@ object PostgresSuite extends ResourceSuite {
         }
       }
 
-  test("Brands") { postgres =>
-    forall(brandGen) { brand =>
-      val b = Brands.make[IO](postgres)
-      for {
-        x <- b.findAll
-        _ <- b.create(brand.name)
-        y <- b.findAll
-        z <- b.create(brand.name).attempt
-      } yield expect.all(x.isEmpty, y.count(_.name === brand.name) === 1, z.isLeft)
-    }
-  }
-
-  test("Categories") { postgres =>
-    forall(categoryGen) { category =>
-      val c = Categories.make[IO](postgres)
-      for {
-        x <- c.findAll
-        _ <- c.create(category.name)
-        y <- c.findAll
-        z <- c.create(category.name).attempt
-      } yield expect.all(x.isEmpty, y.count(_.name === category.name) === 1, z.isLeft)
-    }
-  }
 
   test("Items") { postgres =>
     forall(itemGen) { item =>
       def newItem(
-          bid: Option[BrandId],
-          cid: Option[CategoryId]
       ) = CreateItem(
         name = item.name,
-        description = item.description,
-        price = item.price,
-        brandId = bid.getOrElse(item.brand.uuid),
-        categoryId = cid.getOrElse(item.category.uuid)
+        isAvailable = item.isAvailable,
+        price = item.price
       )
 
-      val b = Brands.make[IO](postgres)
-      val c = Categories.make[IO](postgres)
       val i = Items.make[IO](postgres)
 
       for {
         x <- i.findAll
-        _ <- b.create(item.brand.name)
-        d <- b.findAll.map(_.headOption.map(_.uuid))
-        _ <- c.create(item.category.name)
-        e <- c.findAll.map(_.headOption.map(_.uuid))
-        _ <- i.create(newItem(d, e))
+        _ <- i.create(newItem())
         y <- i.findAll
       } yield expect.all(x.isEmpty, y.count(_.name === item.name) === 1)
     }

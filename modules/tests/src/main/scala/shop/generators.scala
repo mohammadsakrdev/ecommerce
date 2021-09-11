@@ -3,9 +3,7 @@ package shop
 import java.util.UUID
 
 import shop.domain.auth._
-import shop.domain.brand._
 import shop.domain.cart._
-import shop.domain.category._
 import shop.domain.checkout._
 import shop.domain.item._
 import shop.domain.order._
@@ -35,26 +33,14 @@ object generators {
   def idGen[A](f: UUID => A): Gen[A] =
     Gen.uuid.map(f)
 
-  val brandIdGen: Gen[BrandId] =
-    idGen(BrandId.apply)
-
-  val brandNameGen: Gen[BrandName] =
-    nesGen(BrandName.apply)
-
-  val categoryIdGen: Gen[CategoryId] =
-    idGen(CategoryId.apply)
-
-  val categoryNameGen: Gen[CategoryName] =
-    nesGen(CategoryName.apply)
-
   val itemIdGen: Gen[ItemId] =
     idGen(ItemId.apply)
 
   val itemNameGen: Gen[ItemName] =
     nesGen(ItemName.apply)
 
-  val itemDescriptionGen: Gen[ItemDescription] =
-    nesGen(ItemDescription.apply)
+  val itemIsAvailable: Gen[ItemIsAvailable] =
+    Gen.oneOf(List(ItemIsAvailable(true), ItemIsAvailable(false)))
 
   val userIdGen: Gen[UserId] =
     idGen(UserId.apply)
@@ -80,27 +66,13 @@ object generators {
   val moneyGen: Gen[Money] =
     Gen.posNum[Long].map(n => USD(BigDecimal(n)))
 
-  val brandGen: Gen[Brand] =
-    for {
-      i <- brandIdGen
-      n <- brandNameGen
-    } yield Brand(i, n)
-
-  val categoryGen: Gen[Category] =
-    for {
-      i <- categoryIdGen
-      n <- categoryNameGen
-    } yield Category(i, n)
-
   val itemGen: Gen[Item] =
     for {
       i <- itemIdGen
       n <- itemNameGen
-      d <- itemDescriptionGen
       p <- moneyGen
-      b <- brandGen
-      c <- categoryGen
-    } yield Item(i, n, d, p, b, c)
+      ia <- itemIsAvailable
+    } yield Item(i, n, p, ia)
 
   val cartItemGen: Gen[CartItem] =
     for {
@@ -167,16 +139,11 @@ object generators {
       c <- cardGen
     } yield Payment(i, m, c)
 
-  val brandParamGen: Gen[BrandParam] =
-    arbitrary[NonEmptyString].map(BrandParam(_))
-
   val createItemParamGen: Gen[CreateItemParam] =
     for {
       n <- arbitrary[NonEmptyString].map(ItemNameParam(_))
-      d <- arbitrary[NonEmptyString].map(ItemDescriptionParam(_))
       p <- arbitrary[String Refined ValidBigDecimal].map(PriceParam(_))
-      b <- brandIdGen
-      c <- categoryIdGen
-    } yield CreateItemParam(n, d, p, b, c)
+      ia <- arbitrary[Boolean].map(ItemIsAvailableParam(_))
+    } yield CreateItemParam(n, p,ia)
 
 }

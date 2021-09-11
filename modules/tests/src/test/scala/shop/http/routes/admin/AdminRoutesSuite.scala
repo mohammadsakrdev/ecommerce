@@ -1,11 +1,9 @@
-package shop.http.routes.secured
+package shop.http.routes.admin
 
-import shop.domain.brand._
 import shop.domain.item._
 import shop.generators._
 import shop.http.auth.users._
-import shop.http.routes.admin._
-import shop.services.{ Brands, Items }
+import shop.services.{ Items }
 
 import cats.data.Kleisli
 import cats.effect._
@@ -23,22 +21,6 @@ object AdminRoutesSuite extends HttpSuite {
 
   def authMiddleware(authUser: AdminUser): AuthMiddleware[IO, AdminUser] =
     AuthMiddleware(Kleisli.pure(authUser))
-
-  test("POST create brand") {
-    val gen = for {
-      i <- brandIdGen
-      u <- adminUserGen
-      b <- brandParamGen
-    } yield (i, u, b)
-
-    forall(gen) {
-      case (id, user, brand) =>
-        val req      = POST(brand, uri"/brands")
-        val routes   = AdminBrandRoutes[IO](new TestBrands(id)).routes(authMiddleware(user))
-        val expected = JsonObject.singleton("brand_id", id.asJson).asJson
-        expectHttpBodyAndStatus(routes, req)(expected, Status.Created)
-    }
-  }
 
   test("POST create item") {
     val gen = for {
@@ -58,14 +40,8 @@ object AdminRoutesSuite extends HttpSuite {
 
 }
 
-protected class TestBrands(id: BrandId) extends Brands[IO] {
-  def findAll: IO[List[Brand]]             = ???
-  def create(name: BrandName): IO[BrandId] = IO.pure(id)
-}
-
 protected class TestItems(id: ItemId) extends Items[IO] {
   def findAll: IO[List[Item]]                    = ???
-  def findBy(brand: BrandName): IO[List[Item]]   = ???
   def findById(itemId: ItemId): IO[Option[Item]] = ???
   def create(item: CreateItem): IO[ItemId]       = IO.pure(id)
   def update(item: UpdateItem): IO[Unit]         = IO.unit

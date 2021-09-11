@@ -8,9 +8,7 @@ import shop.auth._
 import shop.config.types._
 import shop.domain.ID
 import shop.domain.auth._
-import shop.domain.brand._
 import shop.domain.cart._
-import shop.domain.category._
 import shop.domain.item._
 import shop.generators._
 import shop.http.auth.users._
@@ -23,7 +21,6 @@ import dev.profunktor.auth.jwt._
 import dev.profunktor.redis4cats.log4cats._
 import dev.profunktor.redis4cats.{ Redis, RedisCommands }
 import eu.timepit.refined.auto._
-import eu.timepit.refined.cats._
 import org.typelevel.log4cats.noop.NoOpLogger
 import pdi.jwt._
 import suite.ResourceSuite
@@ -131,15 +128,11 @@ protected class TestUsers(un: UserName) extends Users[IO] {
 protected class TestItems(ref: Ref[IO, Map[ItemId, Item]]) extends Items[IO] {
   def findAll: IO[List[Item]] =
     ref.get.map(_.values.toList)
-  def findBy(brand: BrandName): IO[List[Item]] =
-    ref.get.map(_.values.filter(_.brand.name === brand).toList)
   def findById(itemId: ItemId): IO[Option[Item]] =
     ref.get.map(_.get(itemId))
   def create(item: CreateItem): IO[ItemId] =
     ID.make[IO, ItemId].flatTap { id =>
-      val brand    = Brand(item.brandId, BrandName("foo"))
-      val category = Category(item.categoryId, CategoryName("foo"))
-      val newItem  = Item(id, item.name, item.description, item.price, brand, category)
+      val newItem  = Item(id, item.name,item.price, item.isAvailable)
       ref.update(_.updated(id, newItem))
     }
   def update(item: UpdateItem): IO[Unit] =

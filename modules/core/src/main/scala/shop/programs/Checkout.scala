@@ -63,7 +63,9 @@ final case class Checkout[F[_]: Background: Logger: MonadThrow: Retry](
     MonadThrow[F].fromOption(NonEmptyList.fromList(xs), EmptyCartError)
 
   def process(userId: UserId, card: Card): F[OrderId] =
-    cart.get(userId).flatMap {
+    cart.get(userId)
+      .ensure(FraudDetectionError("Fraud detected"))(_.total.value > 1500)
+      .flatMap {
       case CartTotal(items, total) =>
         for {
           its <- ensureNonEmpty(items)

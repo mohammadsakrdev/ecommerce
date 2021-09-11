@@ -68,6 +68,11 @@ object CheckoutSuite extends SimpleIOSuite with Checkers {
       IO.pure(CartTotal(List.empty, USD(0)))
   }
 
+  val fraudCart: ShoppingCart[IO] = new TestCart {
+    override def get(userId: UserId): IO[CartTotal] =
+      IO.pure(CartTotal(NonEmptyList[CartItem], USD(2000)))
+  }
+
   def failingCart(cartTotal: CartTotal): ShoppingCart[IO] = new TestCart {
     override def get(userId: UserId): IO[CartTotal] =
       IO.pure(cartTotal)
@@ -113,6 +118,7 @@ object CheckoutSuite extends SimpleIOSuite with Checkers {
           }
     }
   }
+
 
   test("unreachable payment client") {
     forall(gen) {
