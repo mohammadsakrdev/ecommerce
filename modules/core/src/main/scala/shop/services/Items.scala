@@ -58,7 +58,7 @@ private object ItemSQL {
 
   val decoder: Decoder[Item] =
     (itemId ~ itemName ~ money ~ itemIsAvailable).map {
-      case i ~ n ~ p ~ ia  =>
+      case i ~ n ~ p ~ ia =>
         Item(i, n, p, ia)
     }
 

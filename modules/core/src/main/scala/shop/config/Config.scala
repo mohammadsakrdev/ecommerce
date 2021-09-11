@@ -26,6 +26,11 @@ object Config {
             RedisURI("redis://localhost"),
             PaymentURI("https://payments.free.beeceptor.com")
           )
+        case Prod =>
+          default[F](
+            RedisURI("redis://10.123.154.176"),
+            PaymentURI("https://payments.net/api")
+          )
       }
       .load[F]
 

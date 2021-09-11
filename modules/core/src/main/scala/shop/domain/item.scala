@@ -2,15 +2,11 @@ package shop.domain
 
 import java.util.UUID
 
-import shop.domain.cart.{CartItem, Quantity}
+import shop.domain.cart.{ CartItem, Quantity }
 import shop.optics.uuid
 import derevo.cats._
 import derevo.circe.magnolia._
 import derevo.derive
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.auto._
-import eu.timepit.refined.string.{Uuid, ValidBigDecimal}
-import eu.timepit.refined.types.string.NonEmptyString
 import io.estatico.newtype.macros.newtype
 import squants.market._
 
@@ -27,11 +23,11 @@ object item {
 
   @derive(decoder, encoder, eqv, show)
   case class Item(
-                   uuid: ItemId,
-                   name: ItemName,
-                   price: Money,
-                   isAvailable: ItemIsAvailable
-                 ) {
+      uuid: ItemId,
+      name: ItemName,
+      price: Money,
+      isAvailable: ItemIsAvailable
+  ) {
     def cart(q: Quantity): CartItem =
       CartItem(this, q)
   }
@@ -39,43 +35,43 @@ object item {
   // ----- Create item ------
 
   @derive(decoder, encoder, show)
-  @newtype case class ItemNameParam(value: NonEmptyString)
+  @newtype case class ItemNameParam(value: String)
 
   @derive(decoder, encoder, show)
   @newtype case class ItemIsAvailableParam(value: Boolean)
 
   @derive(decoder, encoder, show)
-  @newtype case class PriceParam(value: String Refined ValidBigDecimal)
+  @newtype case class PriceParam(value: Int)
 
   @derive(decoder, encoder, show)
   case class CreateItemParam(
-                              name: ItemNameParam,
-                              price: PriceParam,
-                              isAvailable: ItemIsAvailableParam,
-                            ) {
+      name: ItemNameParam,
+      price: PriceParam,
+      isAvailable: ItemIsAvailableParam
+  ) {
     def toDomain: CreateItem =
       CreateItem(
         ItemName(name.value),
         USD(BigDecimal(price.value)),
-        ItemIsAvailable(isAvailable.value),
+        ItemIsAvailable(isAvailable.value)
       )
   }
 
   case class CreateItem(
-                         name: ItemName,
-                         price: Money,
-                         isAvailable: ItemIsAvailable,
-                       )
+      name: ItemName,
+      price: Money,
+      isAvailable: ItemIsAvailable
+  )
 
   // ----- Update item ------
 
   @derive(decoder, encoder)
-  @newtype case class ItemIdParam(value: String Refined Uuid)
+  @newtype case class ItemIdParam(value: String)
 
   @derive(decoder, encoder) case class UpdateItemParam(
-                              id: ItemIdParam,
-                              price: PriceParam
-                            ) {
+      id: ItemIdParam,
+      price: PriceParam
+  ) {
     def toDomain: UpdateItem =
       UpdateItem(
         ItemId(UUID.fromString(id.value)),
@@ -85,8 +81,8 @@ object item {
 
   @derive(decoder, encoder)
   case class UpdateItem(
-                         id: ItemId,
-                         price: Money
-                       )
+      id: ItemId,
+      price: Money
+  )
 
 }

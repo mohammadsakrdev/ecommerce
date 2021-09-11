@@ -11,9 +11,6 @@ import shop.domain.payment.Payment
 import shop.http.auth.users._
 
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.scalacheck.string._
-import eu.timepit.refined.string.ValidBigDecimal
-import eu.timepit.refined.types.string.NonEmptyString
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import squants.market._
@@ -141,8 +138,8 @@ object generators {
 
   val createItemParamGen: Gen[CreateItemParam] =
     for {
-      n <- arbitrary[NonEmptyString].map(ItemNameParam(_))
-      p <- arbitrary[String Refined ValidBigDecimal].map(PriceParam(_))
+      n <- arbitrary[String].map(ItemNameParam(_))
+      p <- arbitrary[Int].map(PriceParam(_))
       ia <- arbitrary[Boolean].map(ItemIsAvailableParam(_))
     } yield CreateItemParam(n, p,ia)
 

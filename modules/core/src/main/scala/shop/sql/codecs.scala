@@ -9,8 +9,8 @@ import skunk.codec.all._
 import squants.market._
 
 object codecs {
-  val itemId: Codec[ItemId]            = uuid.imap[ItemId](ItemId(_))(_.value)
-  val itemName: Codec[ItemName]        = varchar.imap[ItemName](ItemName(_))(_.value)
+  val itemId: Codec[ItemId]                   = uuid.imap[ItemId](ItemId(_))(_.value)
+  val itemName: Codec[ItemName]               = varchar.imap[ItemName](ItemName(_))(_.value)
   val itemIsAvailable: Codec[ItemIsAvailable] = bool.imap[ItemIsAvailable](ItemIsAvailable(_))(_.value)
 
   val orderId: Codec[OrderId]     = uuid.imap[OrderId](OrderId(_))(_.value)

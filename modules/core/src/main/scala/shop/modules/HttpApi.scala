@@ -12,7 +12,7 @@ import org.http4s._
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.middleware._
-import shop.http.routes.auth.{LoginRoutes, LogoutRoutes, UserRoutes}
+import shop.http.routes.auth.{ LoginRoutes, LogoutRoutes, UserRoutes }
 
 object HttpApi {
   def make[F[_]: Async](
@@ -39,8 +39,8 @@ sealed abstract class HttpApi[F[_]: Async] private (
   private val userRoutes   = UserRoutes[F](security.auth).routes
 
   // Open routes
-  private val healthRoutes   = HealthRoutes[F](services.healthCheck).routes
-  private val itemRoutes     = ItemRoutes[F](services.items).routes
+  private val healthRoutes = HealthRoutes[F](services.healthCheck).routes
+  private val itemRoutes   = ItemRoutes[F](services.items).routes
 
   // Secured routes
   private val cartRoutes     = CartRoutes[F](services.cart).routes(usersMiddleware)
@@ -48,11 +48,11 @@ sealed abstract class HttpApi[F[_]: Async] private (
   private val orderRoutes    = OrderRoutes[F](services.orders).routes(usersMiddleware)
 
   // Admin routes
-  private val adminItemRoutes     = AdminItemRoutes[F](services.items).routes(adminMiddleware)
+  private val adminItemRoutes = AdminItemRoutes[F](services.items).routes(adminMiddleware)
 
   // Combining all the http routes
   private val openRoutes: HttpRoutes[F] =
-    healthRoutes <+> itemRoutes  <+> loginRoutes <+> userRoutes <+>
+    healthRoutes <+> itemRoutes <+> loginRoutes <+> userRoutes <+>
       logoutRoutes <+> cartRoutes <+> orderRoutes <+>
       checkoutRoutes
 

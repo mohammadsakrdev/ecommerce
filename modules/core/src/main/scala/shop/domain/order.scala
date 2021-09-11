@@ -40,8 +40,8 @@ object order {
   }
 
   @derive(eqv, show)
-  case class OrderError(cause: String)   extends OrderOrPaymentError
-  case class FraudDetectionError(cause: String)   extends OrderOrPaymentError
-  case class OrderBelowAllowedLimitError(cause: String)   extends OrderOrPaymentError
-  case class PaymentError(cause: String) extends OrderOrPaymentError
+  case class OrderError(cause: String)                  extends OrderOrPaymentError
+  case class FraudDetectionError(cause: String)         extends OrderOrPaymentError
+  case class OrderBelowAllowedLimitError(cause: String) extends OrderOrPaymentError
+  case class PaymentError(cause: String)                extends OrderOrPaymentError
 }
