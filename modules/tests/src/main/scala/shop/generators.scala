@@ -40,7 +40,7 @@ object generators {
     nesGen(ItemName.apply)
 
   val itemIsAvailable: Gen[ItemIsAvailable] =
-    Gen.oneOf(List(ItemIsAvailable(true), ItemIsAvailable(false)))
+    Gen.oneOf(List(ItemIsAvailable(true)))
 
   val userIdGen: Gen[UserId] =
     idGen(UserId.apply)

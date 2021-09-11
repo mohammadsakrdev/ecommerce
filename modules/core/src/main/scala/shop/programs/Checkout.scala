@@ -64,7 +64,10 @@ final case class Checkout[F[_]: Background: Logger: MonadThrow: Retry](
 
   def process(userId: UserId, card: Card): F[OrderId] =
     cart.get(userId)
+      .ensure(EmptyCartError)(_.items.nonEmpty)
       .ensure(FraudDetectionError("Fraud detected"))(_.total.value > 1500)
+      .ensure(OrderBelowAllowedLimitError("Order is Below Allowed limit"))(_.total.value < 100)
+      .ensure(OrderBelowAllowedLimitError("Order contains unavailable item(s)"))(_.items.exists(_.item.isAvailable==false))
       .flatMap {
       case CartTotal(items, total) =>
         for {

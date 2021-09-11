@@ -68,9 +68,14 @@ object CheckoutSuite extends SimpleIOSuite with Checkers {
       IO.pure(CartTotal(List.empty, USD(0)))
   }
 
-  val fraudCart: ShoppingCart[IO] = new TestCart {
+  val fraudOrder: ShoppingCart[IO] = new TestCart {
     override def get(userId: UserId): IO[CartTotal] =
       IO.pure(CartTotal(NonEmptyList[CartItem], USD(2000)))
+  }
+
+  val belowLimitOrder: ShoppingCart[IO] = new TestCart {
+    override def get(userId: UserId): IO[CartTotal] =
+      IO.pure(CartTotal(NonEmptyList[CartItem], USD(90)))
   }
 
   def failingCart(cartTotal: CartTotal): ShoppingCart[IO] = new TestCart {
@@ -81,7 +86,7 @@ object CheckoutSuite extends SimpleIOSuite with Checkers {
 
   def successfulCart(cartTotal: CartTotal): ShoppingCart[IO] = new TestCart {
     override def get(userId: UserId): IO[CartTotal] =
-      IO.pure(cartTotal)
+      IO.pure(CartTotal(NonEmptyList[CartItem], USD(1000)))
     override def delete(userId: UserId): IO[Unit] = IO.unit
   }
 
