@@ -1,4 +1,5 @@
 # e-commerce app
+
 Rest-APIs that simulates an e-commerce processes
 
 ## Tests
@@ -13,7 +14,7 @@ To run Integration Tests we need to run both `PostgreSQL` and `Redis`:
 
 ```
 docker-compose up
-sbt it:test
+sbt it:test (Inside the root folder)
 docker-compose down
 ```
 
